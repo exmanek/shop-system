@@ -11,14 +11,32 @@ def run():
     cart = Cart()
     cart.add_product(laptop, 10)
     cart.add_product(telefon, 2)
+    cart.__repr__()
     print(f"Total price: {cart.total_price()}")
 
-    order = Order(1, szymon, cart)
-    order2 = order = Order(2, szymon, cart)
-    szymon.add_order(order)
-    szymon.add_order(order2)
+    order1 = Order(1, szymon, cart)
+    szymon.add_order(order1)
+    order1.checkout(cart)
 
-    order.checkout(cart)
+    cart.add_product(telefon,20)
+    print(f"Total price: {cart.total_price()}")
+
+    order2 = Order(2, szymon, cart)
+    szymon.add_order(order2)
     order2.checkout(cart)
-    print(f"Order history: {szymon.get_order_history()}")
+
+    cart.remove_product(laptop)
+    cart.remove_product(telefon)
+    cart.add_product(telefon,2)
+    print(f"Total price: {cart.total_price()}")
+    cart.__repr__()
+
+    order2 = Order(3, szymon, cart)
+    szymon.add_order(order2)
+    order2.checkout(cart)
+
+    szymon.get_order_history()
+
+    laptop.change_price(1100)
+    szymon.get_order_history()
     return

@@ -3,3 +3,9 @@ class Product:
         self.product_id = product_id
         self.name = name
         self.price = price
+
+    def __repr__(self):
+        return f"Product(product_id={self.product_id}, name='{self.name}', price={self.price})"
+
+    def change_price(self, price):
+        self.price = price
