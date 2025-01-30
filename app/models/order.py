@@ -1,3 +1,5 @@
+from flask import make_response
+
 class Order:
     def __init__(self, order_id, client, cart):
         self.order_id = order_id
@@ -10,4 +12,4 @@ class Order:
     def checkout(self, cart):
         max_order_value = 30000
         if cart.total_price() > max_order_value:
-            return print(f"Order declined, total value of order is higher than {max_order_value}")
+            return make_response(f"Order declined, total value of order is higher than {max_order_value}")

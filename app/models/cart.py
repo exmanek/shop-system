@@ -1,11 +1,12 @@
 from app.models.product import Product
+from flask import make_response
 
 class Cart:
     def __init__(self):
         self.items = []
 
     def __repr__(self):
-        return print(f"Cart(items={self.items})")
+        return f"Cart(items={self.items})"
 
     def add_product(self, product: Product, quantity):
         for item in self.items:
@@ -15,8 +16,6 @@ class Cart:
 
         self.items.append({
             'product_id': product.product_id,
-            'product_name': product.name,
-            'product_price': product.price,
             'quantity': quantity
         })
 
@@ -24,10 +23,30 @@ class Cart:
         for item in self.items:
             if item['product_id'] == product.product_id:
                 self.items.remove(item)
-                print(f"Removed product with ID {product.product_id} from the cart.")
-                return
-        print("Product is not in cart")
+                return make_response(f"Removed product with ID {product.product_id} from the cart.")
+        return make_response("Product is not in cart")
 
+    def get_products(self, products_list):
+        cart_products = []
+        cart_price = 0
 
-    def total_price(self):
-        return sum(item['product_price'] * item['quantity'] for item in self.items)
+        for item in self.items:
+            product = next((p for p in products_list if p.product_id == item["product_id"]), None)
+            if product:
+                total_price = product.price * item["quantity"]
+                cart_price += total_price
+                cart_products.append({
+                    "product_id": product.product_id,
+                    "name": product.name,
+                    "price": product.price,
+                    "quantity": item["quantity"],
+                    "total_price": total_price
+                })
+
+        response_data = {
+            "success": True,
+            "cart_price": cart_price,
+            "products": cart_products
+        }
+        return make_response(jsonify(response_data), 200)
+

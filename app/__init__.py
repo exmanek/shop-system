@@ -1,6 +1,3 @@
-from linecache import updatecache
-from venv import create
-
 from flask import Flask, request, jsonify, make_response
 from app.models.client import Client
 from app.models.product import Product
@@ -8,6 +5,7 @@ from app.models.cart import Cart
 from app.models.order import Order
 
 app = Flask(__name__)
+app.json.sort_keys = False
 cart = Cart()
 products = []
 clients = []
@@ -29,20 +27,20 @@ def create_client():
 # get
 @app.route('/client', methods=['GET'])
 def get_clients():
-    # In a real implementation, you would retrieve from a database
+
     response_data = {
         "success": True,
-        "clients": []  # List of clients should be fetched from database
+        "clients": clients
     }
     return make_response(jsonify(response_data), 200)
 
 # get/id
 @app.route('/client/<int:client_id>', methods=['GET'])
 def get_client(client_id):
-    # In a real implementation, you would retrieve from a database
+
     response_data = {
         "success": True,
-        "client": {"client_id": client_id, "name": "Client Name"}  # Example response
+        "client": {"client_id": client_id, "name": "Client Name"}
     }
     return make_response(jsonify(response_data), 200)
 
@@ -52,11 +50,7 @@ def get_client(client_id):
 # get
 @app.route('/cart', methods=['GET'])
 def get_cart():
-    response_data = {
-        "success": True,
-        "cart": cart.items
-    }
-    return make_response(jsonify(response_data), 200)
+    return cart.get_products(products)
 
 # add
 @app.route('/cart/add', methods=['POST'])
@@ -77,7 +71,7 @@ def add_product_to_cart():
 
     response_data = {
         "success": True,
-        "cart": cart.items  # Zwróć zawartość koszyka
+        "cart": cart.items
     }
     return make_response(jsonify(response_data), 201)
 
@@ -93,20 +87,19 @@ def remove_product_from_cart():
     }
     return make_response(jsonify(response_data), 200)
 
-#total
-@app.route('/cart/total', methods=['GET'])
-def total_price():
-    response_data = {"success": True, "total_price": cart.total_price()}
-    return make_response(jsonify(response_data), 200)
-
 ## product
 
 # add
 @app.route('/product', methods=['POST'])
 def add_product():
-    data = request.get_json()
-    product = Product(product_id=data['product_id'], name=data['name'], price=data['price'])
+    product_id = len(products) + 1
+    name = request.json.get('name')
+    price = request.json.get('price')
 
+    if not name or not price:
+        return make_response(jsonify({"error": "Missing required fields."}), 400)
+
+    product = Product(product_id, name, price)
     products.append(product)
 
     response_data = {
@@ -118,17 +111,16 @@ def add_product():
 # get all
 @app.route('/product', methods=['GET'])
 def get_all_products():
-    # In a real implementation, you would retrieve from a database
     response_data = {
         "success": True,
-        "products": []  # List of products should be fetched from database
+        "products": [product.to_json() for product in products]
     }
     return make_response(jsonify(response_data), 200)
 
 # get/id
 @app.route('/product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
-    # In a real implementation, you would retrieve from a database
+
     response_data = {
         "success": True,
         "product": {"product_id": product_id, "name": "Product Name", "price": 100}
