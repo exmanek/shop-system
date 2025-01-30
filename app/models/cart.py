@@ -1,5 +1,5 @@
 from app.models.product import Product
-from flask import make_response
+from flask import make_response, jsonify
 
 class Cart:
     def __init__(self):
@@ -31,7 +31,12 @@ class Cart:
         cart_price = 0
 
         for item in self.items:
-            product = next((p for p in products_list if p.product_id == item["product_id"]), None)
+            product = None
+            for p in products_list:
+                if p.product_id == item["product_id"]:
+                    product = p
+                    break
+
             if product:
                 total_price = product.price * item["quantity"]
                 cart_price += total_price
@@ -50,3 +55,10 @@ class Cart:
         }
         return make_response(jsonify(response_data), 200)
 
+    def total_price(self):
+        cart_price = 0
+        for item in self.items:
+            total_price = item["quantity"] * item["product"]["price"]
+            cart_price += total_price
+            return make_response(f"Total price: {cart_price}")
+        return make_response("Cart is empty")

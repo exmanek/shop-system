@@ -7,6 +7,12 @@ class Client:
     def __repr__(self):
         return f"Client(client_id={self.client_id}, name='{self.name}', orders={len(self.orders)})"
 
+    def to_json(self):
+        return {
+            "client_id": self.client_id,
+            "name": self.name
+        }
+
     def add_order(self,order):
         self.orders.append(order)
 

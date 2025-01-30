@@ -9,6 +9,7 @@ app.json.sort_keys = False
 cart = Cart()
 products = []
 clients = []
+orders = []
 
 
 ## client routes
@@ -16,11 +17,22 @@ clients = []
 # create
 @app.route('/client', methods=['POST'])
 def create_client():
-    data = request.get_json()
-    client = Client(client_id=data['client_id'], name=data['name'])
+    client_id = len(clients) + 1
+    name = request.json.get('name')
+
+    if not name:
+        return make_response(jsonify({"error": "Missing required fields."}), 400)
+
+    client = Client(client_id,name)
+    clients.append(client)
+
     response_data = {
         "success": True,
-        "client": {"client_id": client.client_id, "name": client.name}
+        "client":
+            {
+                "client_id": client.client_id,
+                "name": client.name
+            }
     }
     return make_response(jsonify(response_data), 201)
 
@@ -30,17 +42,19 @@ def get_clients():
 
     response_data = {
         "success": True,
-        "clients": clients
+        "clients": [client.to_json() for client in clients]
     }
     return make_response(jsonify(response_data), 200)
 
 # get/id
 @app.route('/client/<int:client_id>', methods=['GET'])
 def get_client(client_id):
+    for client in clients:
+        name = client.name
 
     response_data = {
         "success": True,
-        "client": {"client_id": client_id, "name": "Client Name"}
+        "client": {"client_id": client_id, "name": name}
     }
     return make_response(jsonify(response_data), 200)
 
@@ -121,17 +135,22 @@ def get_all_products():
 @app.route('/product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
 
+    for product in products:
+        name = product.name
+        price = product.price
     response_data = {
         "success": True,
-        "product": {"product_id": product_id, "name": "Product Name", "price": 100}
+        "product": {"product_id": product_id, "name": name, "price": price}
     }
     return make_response(jsonify(response_data), 200)
 
 # change price
 @app.route('/product/<int:product_id>/price', methods=['PUT'])
 def change_price(product_id):
-    data = request.get_json()
-    new_price = data['price']
+    new_price = request.json.get('price')
+    for product in products:
+        if product.product_id == product_id:
+            product.change_price(new_price)
 
     response_data = {
         "success": True,
@@ -151,11 +170,12 @@ def create_order():
             client = c
             break
 
-    order_id = len(client.orders) + 1
-    order = Order(order_id, client=client, cart=cart)
+    order_id = len(orders) + 1
+    order = Order(order_id, client, cart)
+    orders.append(order)
 
     response_data = {
         "success": True,
-        "order": {"order_id": order.order_id, "client": order.client.name, "total_price": order.cart.total_price()}
+        "order": {"order_id": order.order_id, "client": client.name, "total_price": cart.total_price()}
     }
     return make_response(jsonify(response_data), 201)
