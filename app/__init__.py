@@ -172,10 +172,27 @@ def create_order():
 
     order_id = len(orders) + 1
     order = Order(order_id, client, cart)
+    order.checkout(cart, products)
     orders.append(order)
 
     response_data = {
         "success": True,
-        "order": {"order_id": order.order_id, "client": client.name, "total_price": cart.total_price()}
+        "order": {"order_id": order.order_id, "client": client.name, "total_price": order.cart.total_price(products)}
     }
     return make_response(jsonify(response_data), 201)
+
+
+@app.route('/order/', methods=['GET'])
+def get_orders():
+    response_data = {
+        "success": True,
+        "orders": [
+            {
+                "order_id": order.order_id,
+                "client": order.client.name,
+                "total_price": order.cart.total_price(products),
+            }
+            for order in orders
+        ]
+    }
+    return make_response(jsonify(response_data), 200)

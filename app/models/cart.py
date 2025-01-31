@@ -55,10 +55,15 @@ class Cart:
         }
         return make_response(jsonify(response_data), 200)
 
-    def total_price(self):
+    def total_price(self,products):
         cart_price = 0
         for item in self.items:
-            total_price = item["quantity"] * item["product"]["price"]
-            cart_price += total_price
-            return make_response(f"Total price: {cart_price}")
-        return make_response("Cart is empty")
+            product = None
+            for p in products:
+                if p.product_id == item["product_id"]:
+                    product = p
+                    break
+            if product:
+                total_price = item["quantity"] * product.price
+                cart_price += total_price
+        return cart_price
