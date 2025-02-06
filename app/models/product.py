@@ -1,5 +1,7 @@
+from app.db import ProductDB, db
+
 class Product:
-    def __init__(self,product_id,name,price):
+    def __init__(self, product_id=None, name=None, price=None):
         self.product_id = product_id
         self.name = name
         self.price = price

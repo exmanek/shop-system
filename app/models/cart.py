@@ -67,3 +67,10 @@ class Cart:
                 total_price = item["quantity"] * product.price
                 cart_price += total_price
         return cart_price
+
+    def checkout(self, products):
+        max_order_value = 30000
+        total = self.total_price(products)
+        if total > max_order_value:
+            return make_response(f"Order declined, total value of order is higher than {max_order_value}")
+        return make_response(f"Order accepted, total value of order is {total}")
