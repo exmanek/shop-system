@@ -7,7 +7,7 @@ class OrderDB(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('clients.client_id'), nullable=False)
 
     client = db.relationship('ClientDB', back_populates='orders')
-    orderlines = db.relationship('OrderLineDB', backref='order', lazy=True)
+    orderlines = db.relationship('OrderLineDB', back_populates='order', lazy=True)
 
     @classmethod
     def get_from_db(cls):

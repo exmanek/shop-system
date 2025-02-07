@@ -18,3 +18,10 @@ class ProductDB(db.Model):
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
+
+    def to_json(self):
+        return {
+            "product_id": self.product_id,
+            "name": self.name,
+            "price": self.price
+        }

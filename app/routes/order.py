@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, make_response
 from app.models.order import Order
 from app.db.client import ClientDB
+from app.db.order import OrderDB
 
 order_bp = Blueprint('order', __name__)
 
@@ -8,7 +9,7 @@ order_bp = Blueprint('order', __name__)
 # get
 @order_bp.route('/order', methods=['GET'])
 def get_orders():
-    orders = Order.get_from_db()
+    orders = OrderDB.get_from_db()
 
     response_data = {
         "success": True,
@@ -26,7 +27,7 @@ def get_orders():
 # get/id
 @order_bp.route('/order/<int:order_id>', methods=['GET'])
 def get_order(order_id):
-    order = Order.get_from_db_by_id(order_id)
+    order = OrderDB.get_from_db_by_id(order_id)
     if not order:
         return make_response(jsonify({"error": "Order not found"}), 404)
 
