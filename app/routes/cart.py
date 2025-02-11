@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify, make_response
 from app.models.cart import Cart
 from app.db.product import ProductDB
 from app.db.client import ClientDB
+from app.models.order import Order
+from app.db.order import OrderDB
+from app.db.order_line import OrderLineDB
 
 cart_bp = Blueprint('cart', __name__)
 cart = Cart()
@@ -47,6 +50,20 @@ def remove_product_from_cart():
 def checkout():
     data = request.get_json()
     client_id = data.get('client_id')
+
+    client = ClientDB.get_from_db_by_id(client_id)
+    if not client:
+        return jsonify({'error': 'Client not found'}), 404
+
+    order = Order(client=client_id, cart=cart)
+    orderDB = OrderDB(client_id=client_id)
+    orderDB.save_to_db()
+    for item in cart.items:
+        product_id = item['product_id']
+        product = ProductDB.get_from_db_by_id(product_id)
+
+        orderline = OrderLineDB(order_id=orderDB.order_id, product_id=product_id, price=product.price, quantity=item['quantity'])
+        orderline.save_to_db()
 
     client = ClientDB.get_from_db_by_id(client_id)
     if not client:

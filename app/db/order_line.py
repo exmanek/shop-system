@@ -1,7 +1,5 @@
 from app.db import db
 
-
-
 class OrderLineDB(db.Model):
     __tablename__ = 'orderlines'
 
@@ -13,3 +11,7 @@ class OrderLineDB(db.Model):
 
     order = db.relationship('OrderDB', back_populates='orderlines')
     product = db.relationship('ProductDB', backref=db.backref('orderlines', lazy=True))
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
