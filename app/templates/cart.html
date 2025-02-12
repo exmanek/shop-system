@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechMart - Sklep internetowy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Twój Koszyk</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Ilość</th>
+                    <th>Cena</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }} zł</td>
+                    <td>
+                        <button onclick="removeFromCart({{ item.product_id }})">Usuń</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="total">Łączna kwota: {{ total }} zł</p>
+
+        <button class="checkout-btn" onclick="checkout()">Zamów</button>
+    </div>
+
+    <script>
+        function removeFromCart(productId) {
+            fetch('/cart/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: productId })
+            }).then(response => location.reload());
+        }
+
+        function checkout() {
+            fetch('/cart/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client_id: 1 }) // ID klienta można pobrać dynamicznie
+            }).then(response => location.reload());
+        }
+    </script>
+</body>
+</html>

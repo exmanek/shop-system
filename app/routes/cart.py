@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, render_template
 from app.models.cart import Cart
 from app.db.product import ProductDB
 from app.db.client import ClientDB
@@ -13,7 +13,9 @@ cart = Cart()
 @cart_bp.route('/cart', methods=['GET'])
 def get_cart():
     products = ProductDB.get_from_db()
-    return cart.get_products(products)
+    total = cart.total_price(products)
+    cart_items = cart.items
+    return render_template('cart.html', cart=cart_items, total=total)
 
 # add
 @cart_bp.route('/cart/add', methods=['POST'])

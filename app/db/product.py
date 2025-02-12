@@ -25,3 +25,7 @@ class ProductDB(db.Model):
             "name": self.name,
             "price": self.price
         }
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
